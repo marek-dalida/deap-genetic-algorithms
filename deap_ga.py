@@ -5,6 +5,7 @@ from utils import ackleyFunc, individual
 import matplotlib.pyplot as plt
 from datetime import datetime
 import multiprocessing
+from crossover import arithmetic_crossover, heuristic_crossover
 
 import numpy as np
 
@@ -21,17 +22,17 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 toolbox.register("evaluate", ackleyFunc)
 toolbox.register("select", tools.selTournament, tournsize=3)
-toolbox.register("mate", tools.cxOnePoint)
-toolbox.register("mutate", tools.mutGaussian, mu=5, sigma=10, indpb=0.05)
+toolbox.register("mate", arithmetic_crossover)
+toolbox.register("mutate", tools.mutGaussian, mu=5, sigma=10, indpb=0.2)
 
 if __name__ == "__main__":
     pool = multiprocessing.Pool(processes=16)
     toolbox.register("map", pool.map)
 
-    sizePopulation = 1000
+    sizePopulation = 100
     probabilityMutation = 0.2
     probabilityCrossover = 0.8
-    numberIteration = 1000
+    numberIteration = 100
 
     start_timestamp = datetime.now()
     pop = toolbox.population(n=sizePopulation)
