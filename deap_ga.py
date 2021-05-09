@@ -9,9 +9,6 @@ from crossover import arithmetic_crossover, heuristic_crossover
 
 import numpy as np
 
-mean_population_cost = []
-std_population_cost = []
-
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 
 creator.create("Individual", list, fitness=creator.FitnessMin)
@@ -25,14 +22,16 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", arithmetic_crossover)
 toolbox.register("mutate", tools.mutGaussian, mu=5, sigma=10, indpb=0.2)
 
-if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=16)
+time_of_calc = []
+
+def run_ga(proc_num, toolbox):
+    pool = multiprocessing.Pool(processes=proc_num)
     toolbox.register("map", pool.map)
 
-    sizePopulation = 100
+    sizePopulation = 1000
     probabilityMutation = 0.2
     probabilityCrossover = 0.8
-    numberIteration = 100
+    numberIteration = 1000
 
     start_timestamp = datetime.now()
     pop = toolbox.population(n=sizePopulation)
@@ -90,9 +89,6 @@ if __name__ == "__main__":
         sum2 = sum(x * x for x in fits)
         std = abs(sum2 / length - mean ** 2) ** 0.5
 
-        mean_population_cost.append(mean)
-        std_population_cost.append(std)
-
         print("  Min %s" % min(fits))
         print("  Max %s" % max(fits))
         print("  Avg %s" % mean)
@@ -103,20 +99,25 @@ if __name__ == "__main__":
     print("-- End of (successful) evolution --")
 
     print("\n Time of calculations: {}".format(calc_time))
-    plt.plot(mean_population_cost)
-    plt.xlabel("Epoch number")
-    plt.ylabel("Mean population cost")
-    plt.title("Mean population cost for each epoch")
-    plt.savefig("results/mean_plot_{}.jpeg".format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S")))
-    plt.show()
-    plt.clf()
-
-    plt.plot(std_population_cost)
-    plt.xlabel("Epoch number")
-    plt.ylabel("Standard deviation cost")
-    plt.title("Standard deviation cost for each epoch")
-    plt.savefig("results/std_plot_{}.jpeg".format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S")))
-    plt.show()
-    plt.clf()
-
+    time_of_calc.append(calc_time.total_seconds())
     pool.close()
+
+
+if __name__ == "__main__":
+    run_ga(1, toolbox)
+    run_ga(2, toolbox)
+    run_ga(4, toolbox)
+    run_ga(8, toolbox)
+    run_ga(16, toolbox)
+
+    processes_num = [1, 2, 4, 8, 16]
+    plt.scatter(processes_num, time_of_calc)
+    plt.xlabel("Processes number")
+    plt.ylabel("Calculation time")
+    plt.title("Test of multiprocessing quality")
+    plt.savefig("results/multiprocessing_{}.jpeg".format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S")))
+    plt.show()
+    plt.clf()
+
+    print(time_of_calc)
+
