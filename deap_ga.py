@@ -14,6 +14,23 @@ from AdaBoost import *
 from GaussianProcess import *
 import multiprocessing
 
+def loadParkinsonsData():
+    df = pd.read_csv('data.csv', sep=',')
+
+    y = df['Status']
+    df.drop('Status', axis=1, inplace=True)
+
+    df.drop('ID', axis=1, inplace=True)
+    df.drop('Recording', axis=1, inplace=True)
+    return df, y
+
+def loadDivorceData():
+    df = pd.read_csv('divorce.csv', sep=';')
+
+    y = df['Class']
+    df.drop('Class', axis=1, inplace=True)
+    return df, y
+
 class Classifier(Enum):
     SVC = 1,
     DecisionTree = 2,
@@ -22,16 +39,12 @@ class Classifier(Enum):
     AdaBoost = 5,
     GaussianProcess = 6
 
-currentClassifier = Classifier.GaussianProcess
+currentClassifier = Classifier.KNeighbors
 
 pd.set_option('display.max_columns', None)
-df = pd.read_csv('data.csv', sep=',')
 
-y = df['Status']
-df.drop('Status', axis=1, inplace=True)
-
-df.drop('ID', axis=1, inplace=True)
-df.drop('Recording', axis=1, inplace=True)
+df, y = loadDivorceData()
+# df, y = loadParkinsonsData()
 
 numberOfAttributes = len(df.columns)
 
@@ -83,7 +96,7 @@ numberIteration = 10
 start_timestamp = datetime.now()
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=4)
+    pool = multiprocessing.Pool(processes=8)
     toolbox.register("map", pool.map) 
 
     pop = toolbox.population(n=sizePopulation)
@@ -170,3 +183,4 @@ if __name__ == "__main__":
     plt.savefig("results/std_plot_{}.jpeg".format(datetime.now().strftime("%d-%m-%Y_%H-%M-%S")))
     plt.show()
     plt.clf()
+    pool.close()
