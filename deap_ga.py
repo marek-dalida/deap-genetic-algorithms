@@ -7,11 +7,21 @@ from datetime import datetime
 import numpy as np
 from enum import Enum
 from SVC import *
+from DecisionTree import *
+from RandomForest import *
+from KNeighbors import *
+from AdaBoost import *
+from GaussianProcess import *
 
 class Classifier(Enum):
-    SVC = 1
+    SVC = 1,
+    DecisionTree = 2,
+    RandomForest = 3,
+    KNeighbors = 4,
+    AdaBoost = 5,
+    GaussianProcess = 6
 
-currentClassifier = Classifier.SVC
+currentClassifier = Classifier.GaussianProcess
 
 pd.set_option('display.max_columns', None)
 df = pd.read_csv('data.csv', sep=',')
@@ -37,6 +47,26 @@ if currentClassifier == Classifier.SVC:
     toolbox.register("individual", SVCParametersFeatures, numberOfAttributes, creator.Individual)
     toolbox.register("evaluate", SVCParametersFeatureFitness, y, df, numberOfAttributes)
     toolbox.register("mutate", mutationSVC)
+elif currentClassifier == Classifier.DecisionTree:
+    toolbox.register("individual", DecisionTreeParametersFeatures, numberOfAttributes, creator.Individual)
+    toolbox.register("evaluate", DecisionTreeParametersFeatureFitness, y, df, numberOfAttributes)
+    toolbox.register("mutate", mutationDecisionTree)
+elif currentClassifier == Classifier.RandomForest:
+    toolbox.register("individual", RandomForestParametersFeatures, numberOfAttributes, creator.Individual)
+    toolbox.register("evaluate", RandomForestParametersFeatureFitness, y, df, numberOfAttributes)
+    toolbox.register("mutate", mutationRandomForest)
+elif currentClassifier == Classifier.KNeighbors:
+    toolbox.register("individual", KNeighborsParametersFeatures, numberOfAttributes, creator.Individual)
+    toolbox.register("evaluate", KNeighborsParametersFeatureFitness, y, df, numberOfAttributes)
+    toolbox.register("mutate", mutationKNeighbors)
+elif currentClassifier == Classifier.AdaBoost:
+    toolbox.register("individual", AdaBoostParametersFeatures, numberOfAttributes, creator.Individual)
+    toolbox.register("evaluate", AdaBoostParametersFeatureFitness, y, df, numberOfAttributes)
+    toolbox.register("mutate", mutationAdaBoost)
+elif currentClassifier == Classifier.GaussianProcess:
+    toolbox.register("individual", GaussianProcessParametersFeatures, numberOfAttributes, creator.Individual)
+    toolbox.register("evaluate", GaussianProcessParametersFeatureFitness, y, df, numberOfAttributes)
+    toolbox.register("mutate", mutationGaussianProcess)
 else:
     raise Exception("Selected classifier is not valid")
 
